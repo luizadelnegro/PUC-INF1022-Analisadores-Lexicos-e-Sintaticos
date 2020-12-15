@@ -15,13 +15,16 @@
 %token FIM 
 %token ENQUANTO 
 %token FACA 
+%token VEZES 
 %token INC 
 %token DEC 
 %token ZERA
 %token SE 
 %token ENTAO
+%token SENAO
 %token <id> ID 
 %type <id> cmd cmds varlist 
+
 
 %%
 
@@ -48,10 +51,12 @@ program:
   }
 ;
 
+
 varlist:
   varlist ID {
     char* codigo = malloc(strlen($1) + strlen($2) + 1);
     strcpy(codigo, $1);
+    strcat(codigo, ",");
     strcat(codigo, $2);
     $$ = codigo;
   }
@@ -81,44 +86,46 @@ cmd:
     strcat(codigo, "        ");
     strcat(codigo, $4); 
     $$ = codigo;
-  }
-  | ID '=' ID {
-    char* codigo = malloc(strlen($1) + strlen($3) + 6); 
-    strcpy(codigo, $1);
-    strcat(codigo, " = "); 
-    strcat(codigo, $3); 
-    strcat(codigo, "\n"); 
-    $$ = codigo;
-  }
-  | INC '(' ID ')' {
-    char* codigo = malloc(strlen($3) + 5); 
-    strcat(codigo, "    ");
-    strcpy(codigo, $3);
-    strcat(codigo, "+=1 \n"); 
-    $$ = codigo;
-  }
-  | DEC '(' ID ')' {
-    char* codigo = malloc(strlen($3) + 5); 
-    strcpy(codigo, $3);
-    strcat(codigo, "-=1 \n"); 
-    $$ = codigo;
-  }
-  | ZERA '(' ID ')' {
-    char* codigo = malloc(strlen($3) + 7); 
-    strcpy(codigo, $3);
-    strcat(codigo, " = 0\n"); 
-    $$ = codigo;
-  }
-  | SE ID ENTAO cmds FIM{
-        char* codigo = malloc(strlen($2) + strlen($4) + 12); 
+    }
+    | ID '=' ID { char* codigo = malloc(strlen($1) + strlen($3) + 6);  strcpy(codigo, $1); strcat(codigo, " = ");  strcat(codigo, $3);  strcat(codigo, "\n");  $$ = codigo; }
+    | INC '(' ID ')' { char* codigo = malloc(strlen($3) + 5);  strcat(codigo, "    "); strcpy(codigo, $3); strcat(codigo, "+=1 \n");  $$ = codigo; }
+    | DEC '(' ID ')' { char* codigo = malloc(strlen($3) + 5);  strcpy(codigo, $3); strcat(codigo, "-=1 \n");  $$ = codigo; }
+    | ZERA '(' ID ')' { char* codigo = malloc(strlen($3) + 7);  strcpy(codigo, $3); strcat(codigo, " = 0\n");  $$ = codigo; }
+    | SE ID ENTAO cmds FIM{
+        char* codigo = malloc(strlen($2) + strlen($4) + 10); 
         strcpy(codigo, "if ");
         strcat(codigo, $2); 
         strcat(codigo, ": \n"); 
         strcat(codigo, "        ");
         strcat(codigo, $4); 
         $$ = codigo;
-  }
+    } 
+    | SE ID ENTAO cmds SENAO cmds FIM{
+        char* codigo = malloc(strlen($2) + strlen($4) +strlen($6) + 50); 
+        strcpy(codigo, "if ");
+        strcat(codigo, $2); 
+        strcat(codigo, ": \n"); 
+        strcat(codigo, "        ");
+        strcat(codigo, $4); 
+        strcat(codigo, "    ");
+        strcat(codigo, "else: \n");
+        strcat(codigo, "        ");
+        strcat(codigo, $6); 
+        $$ = codigo;
+    } 
+    | FACA ID VEZES cmds FIM{
+        char* codigo = malloc(strlen($2) + strlen($4) + 30); 
+        strcpy(codigo, "for 1 in range(");
+        strcat(codigo, $2); 
+        strcat(codigo, "): \n");
+        strcat(codigo, "    ");
+        strcat(codigo, "    ");
+        strcat(codigo, $4); 
+        $$ = codigo;
+
+    }
 ;
+
 
 %%
 
